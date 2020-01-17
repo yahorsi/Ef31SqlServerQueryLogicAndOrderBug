@@ -132,6 +132,13 @@ namespace Ef31SqlServerQueryLogicAndOrderBug
             context.SaveChanges();
         }
 
+        private static void UpdateUsingSimpleRemoveAndAdd3(int id)
+        {
+            var context = new DatabaseContext();
+            context.Keyboards.Update(BuildKeyboard());
+            context.SaveChanges();
+        }
+
         private static void UpdateUsingExistenceCheck(int id)
         {
             var context = new DatabaseContext();
@@ -141,6 +148,22 @@ namespace Ef31SqlServerQueryLogicAndOrderBug
             if (existingKeyboard != null)
             {
                 context.Keyboards.Remove(existingKeyboard);
+            }
+
+            context.Keyboards.Add(BuildKeyboard());
+            context.SaveChanges();
+        }
+
+        private static void UpdateUsingExistenceCheck2(int id)
+        {
+            var context = new DatabaseContext();
+
+            var existingKeyboard = context.Keyboards.Find(id);
+
+            if (existingKeyboard != null)
+            {
+                context.Keyboards.Remove(existingKeyboard);
+                context.SaveChanges();
             }
 
             context.Keyboards.Add(BuildKeyboard());
@@ -176,8 +199,22 @@ namespace Ef31SqlServerQueryLogicAndOrderBug
         static void Case3()
         {
             CleanupDatabase();
+            CatchAndPrintException(() => UpdateUsingSimpleRemoveAndAdd3(1));
+            CatchAndPrintException(() => UpdateUsingSimpleRemoveAndAdd3(1));
+        }
+
+        static void Case4()
+        {
+            CleanupDatabase();
             CatchAndPrintException(() => UpdateUsingExistenceCheck(1));
             CatchAndPrintException(() => UpdateUsingExistenceCheck(1));
+        }
+
+        static void Case5()
+        {
+            CleanupDatabase();
+            CatchAndPrintException(() => UpdateUsingExistenceCheck2(1));
+            CatchAndPrintException(() => UpdateUsingExistenceCheck2(1));
         }
 
         static void Main(string[] args)
@@ -187,6 +224,8 @@ namespace Ef31SqlServerQueryLogicAndOrderBug
                 Case1();
                 Case2();
                 Case3();
+                Case4();
+                Case5();
 
                 Console.WriteLine("Hello World!");
             }
